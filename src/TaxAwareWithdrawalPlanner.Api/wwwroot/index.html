@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tax-Aware Withdrawal Planner</title>
+  <style>
+    body { font-family: Segoe UI, Arial, sans-serif; margin: 24px; }
+    .grid { display: grid; grid-template-columns: repeat(2, minmax(280px, 1fr)); gap: 12px; }
+    input { width: 100%; padding: 8px; box-sizing: border-box; }
+    button { margin-top: 12px; padding: 10px 14px; }
+    pre { background: #111; color: #eee; padding: 12px; }
+  </style>
+</head>
+<body>
+  <h1>Tax-Aware Withdrawal Planner</h1>
+  <p>Build a bracket-aware annual withdrawal sequence with RMD guardrails.</p>
+
+  <div class="grid">
+    <input id="householdName" value="Anderson Family" placeholder="Household Name" />
+    <input id="planningYear" type="number" value="2027" placeholder="Planning Year" />
+    <input id="spendingNeed" type="number" value="220000" placeholder="Spending Need" />
+    <input id="taxableBalance" type="number" value="650000" placeholder="Taxable Balance" />
+    <input id="taxDeferredBalance" type="number" value="1800000" placeholder="Tax-Deferred Balance" />
+    <input id="rothBalance" type="number" value="420000" placeholder="Roth Balance" />
+    <input id="rmdAmount" type="number" value="55000" placeholder="RMD Amount" />
+    <input id="ordinaryIncome" type="number" value="90000" placeholder="Ordinary Income Already Realized" />
+    <input id="targetBracket" type="number" value="220000" placeholder="Target Top Bracket Income" />
+  </div>
+
+  <button id="runBtn">Build Plan</button>
+  <pre id="output">Waiting...</pre>
+
+  <script>
+    document.getElementById('runBtn').addEventListener('click', async () => {
+      const payload = {
+        householdName: document.getElementById('householdName').value,
+        planningYear: parseInt(document.getElementById('planningYear').value, 10),
+        spendingNeed: parseFloat(document.getElementById('spendingNeed').value),
+        taxableBalance: parseFloat(document.getElementById('taxableBalance').value),
+        taxDeferredBalance: parseFloat(document.getElementById('taxDeferredBalance').value),
+        rothBalance: parseFloat(document.getElementById('rothBalance').value),
+        rmdAmount: parseFloat(document.getElementById('rmdAmount').value),
+        ordinaryIncomeAlreadyRealized: parseFloat(document.getElementById('ordinaryIncome').value),
+        targetTopBracketIncome: parseFloat(document.getElementById('targetBracket').value)
+      };
+
+      const res = await fetch('/api/withdrawal-planner/build-plan', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      document.getElementById('output').textContent = JSON.stringify(data, null, 2);
+    });
+  </script>
+</body>
+</html>
